@@ -1,0 +1,27 @@
+driver:
+  name: vagrant
+
+provisioner:
+  name: chef_zero
+
+platforms:
+  - name: centos-7.2
+    driver:
+      customize:
+        name: chef-wordpress
+    driver_config:
+      network:
+      - ["forwarded_port", {guest: 80, host: 8080}]
+      - ["forwarded_port", {guest: 443, host: 8443}]
+      - ['private_network', {ip: '192.168.33.33'}]
+
+suites:
+  - name: wordpress_suite
+    driver:
+      vm_hostname: chef-wordpress.local
+    run_list:
+      - recipe[chef-wordpress::default]
+
+# Add this to privisioner/client_rb above
+#    client_rb:
+#      audit_mode: :audit_only
