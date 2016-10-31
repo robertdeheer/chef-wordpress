@@ -15,6 +15,8 @@ platforms:
       - ["forwarded_port", {guest: 443, host: 8443}]
       - ['private_network', {ip: '192.168.33.33'}]
 
+# kitchen test wordpress
+# kitchen verify wordpress
 suites:
   - name: wordpress_suite
     driver:

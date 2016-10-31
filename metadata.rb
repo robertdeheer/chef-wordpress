@@ -11,7 +11,7 @@ end
 
 recipe 'chef-wordpress::default', 'Installs nginx, php, mysql, deploys and app and configures the system.'
 
-#depends 'et_elk', '= 4.0.1'
+# depends 'et_elk', '= 4.0.1'
 
 # attribute "WordPress/version",
 #   :display_name => "WordPress download version",

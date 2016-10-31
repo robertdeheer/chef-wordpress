@@ -1,11 +1,11 @@
-execute "yum -y update"
+execute 'yum -y update'
 
 %w(epel-release nginx php php-mysql php-fpm mariadb-server mariadb).each do |p|
   package p
 end
 
 service 'nginx' do
-  supports status: true, restart: true, reload: true
+  supports status: true, restart: true, reload: true, stop: true
   action :enable
 end
 
@@ -26,15 +26,15 @@ bash 'configure mysql' do
   only_if "mysql -u root -e 'show databases' | grep information_schema"
 end
 
-service 'mariadb' do
+service 'mariadb.service' do
   supports status: true, restart: true, reload: true
   action :enable
 end
 
-ruby_block "Back up nginx config file" do
- block do
-  ::FileUtils.cp "/etc/nginx/nginx.conf", "/etc/nginx/nginx.conf-#{Time.now.strftime('%m-%d-%Y_%H-%M')}"
- end
+ruby_block 'Back up nginx config file' do
+  block do
+    ::FileUtils.cp '/etc/nginx/nginx.conf', "/etc/nginx/nginx.conf-#{Time.now.strftime('%m-%d-%Y_%H-%M')}"
+  end
 end
 
 template '/etc/nginx/nginx.conf' do
@@ -59,16 +59,15 @@ template '/etc/php-fpm.d/www.conf' do
 end
 
 service 'php-fpm' do
-  supports status: true, restart: true, reload: true
-  action :enable
+  supports status: true, restart: true, reload: true, start: true
+  action [:enable, :start, :restart]
 end
 
 service 'php-fpm' do
-  supports status: true, restart: true, reload: true
-  action :enable
+  action :start
 end
 
-execute "chown -R nginx:nginx /usr/share/nginx/html"
+execute 'chown -R nginx:nginx /usr/share/nginx/html'
 
 template '/etc/nginx/conf.d/default.conf' do
   source 'default.conf.erb'
