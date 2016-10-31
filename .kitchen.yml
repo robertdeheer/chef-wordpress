@@ -23,7 +23,3 @@ suites:
       vm_hostname: chef-wordpress.local
     run_list:
       - recipe[chef-wordpress::default]
-
-# Add this to privisioner/client_rb above
-#    client_rb:
-#      audit_mode: :audit_only
