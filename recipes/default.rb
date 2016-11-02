@@ -1,4 +1,7 @@
-execute 'yum -y update'
+execute 'yum update' do
+  command 'yum -y update'
+  not_if "yum check-update"
+end
 
 %w(epel-release nginx php php-mysql php-fpm mariadb-server mariadb).each do |p|
   package p
@@ -35,6 +38,7 @@ ruby_block 'Back up nginx config file' do
   block do
     ::FileUtils.cp '/etc/nginx/nginx.conf', "/etc/nginx/nginx.conf-#{Time.now.strftime('%m-%d-%Y_%H-%M')}"
   end
+  not_if { ::File.exist?("/etc/nginx/nginx.conf-#{Time.now.strftime('%m-%d-%Y_%H-%M')}") }
 end
 
 template '/etc/nginx/nginx.conf' do
@@ -61,11 +65,12 @@ end
 service 'php-fpm' do
   supports status: true, restart: true, reload: true, start: true
   action [:enable, :start, :restart]
+  notifies :start, 'service[php-fpm]', :immediate
 end
 
-service 'php-fpm' do
-  action :start
-end
+# service 'php-fpm' do
+#   action :start
+# end
 
 execute 'chown -R nginx:nginx /usr/share/nginx/html'
 
@@ -74,11 +79,12 @@ template '/etc/nginx/conf.d/default.conf' do
   owner 'root'
   group 'root'
   mode '0644'
+  notifies :restart, 'service[nginx]', :immediate
 end
 
-service 'nginx' do
-  action :restart
-end
+# service 'nginx' do
+#   action :restart
+# end
 
 # NOTE: This should be deleted before deploying to prod.
 template '/usr/share/nginx/html/info.php' do
